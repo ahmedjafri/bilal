@@ -1,6 +1,6 @@
 import copy
 import json
-from typing import List
+
 
 class AzanConfig:
     # Hours between which to play azan quietly
@@ -10,13 +10,12 @@ class AzanConfig:
     quiet_times_end: int
 
     azan_audio_files_dir: str
-    azan_loader_local_dir: str
     calculation_method: str
     latitude: float
     longitude: float
 
     # equality operator
-    def __eq__(self, other) :
+    def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def get_quiet_times(self) -> range:
@@ -28,7 +27,6 @@ class AzanConfig:
         config.quiet_times_start = 9
         config.quiet_times_end = 18
         config.azan_audio_files_dir = "./audio_files/"
-        config.azan_loader_local_dir = "./prayer_times/"
         config.calculation_method = "MWL"
 
         # seattle
@@ -36,6 +34,7 @@ class AzanConfig:
         config.longitude = -122.332069
 
         return config
+
 
 class AzanConfigLoader:
     _config: AzanConfig
@@ -49,16 +48,16 @@ class AzanConfigLoader:
 
     def _load_config(self) -> AzanConfig:
         try:
-            with open(self._config_file_path, 'r') as config_file:
+            with open(self._config_file_path, "r") as config_file:
                 config_dict = json.load(config_file)
                 config = AzanConfig.defaultConfig()
                 config.__dict__.update(config_dict)
                 return config
-        except (FileNotFoundError):
+        except FileNotFoundError:
             return AzanConfig.defaultConfig()
 
     def _save_config(self):
-        with open(self._config_file_path, 'w') as config_file:
+        with open(self._config_file_path, "w") as config_file:
             json.dump(self._config.__dict__, config_file, indent=2)
 
     def getConfig(self) -> AzanConfig:
@@ -68,7 +67,6 @@ class AzanConfigLoader:
     def setConfig(self, config: AzanConfig):
         if self._config != self._load_config():
             raise Exception("Config has changed since last loaded")
-
 
         self._config = config
         self._save_config()

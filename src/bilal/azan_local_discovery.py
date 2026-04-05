@@ -3,11 +3,10 @@ import subprocess
 import socket
 import platform
 import traceback
-import signal
 from logging import Logger
 from threading import Thread, Event
 from zeroconf import ServiceInfo, Zeroconf
-import zeroconf
+
 
 class LocalDiscovery:
     """
@@ -52,12 +51,18 @@ class LocalDiscovery:
                 return
 
             try:
-                self.logger.info(f"Registering service on bilal.local ({ip}), attempt {attempt + 1}...")
-                self.zeroconf.register_service(info=self.service_info, allow_name_change=True)
-                self.logger.info(f"Registered.")
+                self.logger.info(
+                    f"Registering service on bilal.local ({ip}), attempt {attempt + 1}..."
+                )
+                self.zeroconf.register_service(
+                    info=self.service_info, allow_name_change=True
+                )
+                self.logger.info("Registered.")
                 break  # Success, exit loop
-            except Exception as e:
-                self.logger.error(f"Failed to register service: {traceback.format_exc()}")
+            except Exception:
+                self.logger.error(
+                    f"Failed to register service: {traceback.format_exc()}"
+                )
                 if attempt < 4:
                     self.logger.info("Retrying in 60 seconds...")
                     self.shutdown_event.wait(60)  # Wait with an option to exit

@@ -5,7 +5,17 @@ class TestPrayTimes:
     def test_get_times_returns_all_keys(self):
         pt = PrayTimes("MWL")
         times = pt.getTimes((2026, 4, 5), (47.6, -122.3), -7)
-        expected_keys = {"imsak", "fajr", "sunrise", "dhuhr", "asr", "sunset", "maghrib", "isha", "midnight"}
+        expected_keys = {
+            "imsak",
+            "fajr",
+            "sunrise",
+            "dhuhr",
+            "asr",
+            "sunset",
+            "maghrib",
+            "isha",
+            "midnight",
+        }
         assert expected_keys == set(times.keys())
 
     def test_time_format(self):

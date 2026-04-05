@@ -10,6 +10,7 @@ from importlib import resources
 
 from bilal.azan_config import AzanConfigLoader
 
+
 class AzanPlayer:
     azans_file_path: str
     logger: Logger
@@ -22,6 +23,7 @@ class AzanPlayer:
         logger (Logger): The logger instance for logging messages.
         azan_config (AzanConfig): Configuration settings for Azan playback.
     """
+
     def __init__(self, config_loader: AzanConfigLoader, logger: Logger):
         self.logger = logger
         self.config_loader = config_loader
@@ -30,7 +32,7 @@ class AzanPlayer:
 
     def list_azan_filenames(self) -> List[str]:
         # Access the package's 'audio_files' folder
-        audio_files_path = resources.files('bilal').joinpath('audio_files')
+        audio_files_path = resources.files("bilal").joinpath("audio_files")
 
         # List all files in the 'audio_files' directory within the package
         return [
@@ -46,11 +48,9 @@ class AzanPlayer:
             ):
                 self.azan_play_process.kill()
 
-
     def play_azan(
-        self,
-        bypass_quiet_hours: bool = False,
-        azan_file: Optional[str] = None):
+        self, bypass_quiet_hours: bool = False, azan_file: Optional[str] = None
+    ):
         if azan_file is None:
             # pick azan randomly
             azans = self.list_azan_filenames()
@@ -70,17 +70,24 @@ class AzanPlayer:
                 return
 
             if "Linux" == platform.system():
-                full_file_path = os.path.join(self.config_loader.getConfig().azan_audio_files_dir, azan_file)
+                full_file_path = os.path.join(
+                    self.config_loader.getConfig().azan_audio_files_dir, azan_file
+                )
                 self.azan_play_process = subprocess.Popen(
                     ["aplay", "-Ddefault", full_file_path]
                 )
             elif "Darwin" == platform.system():  # MacOS
-                full_file_path = os.path.join(self.config_loader.getConfig().azan_audio_files_dir, azan_file)
+                full_file_path = os.path.join(
+                    self.config_loader.getConfig().azan_audio_files_dir, azan_file
+                )
                 self.azan_play_process = subprocess.Popen(["afplay", full_file_path])
 
     def is_quiet_time(self, dt: datetime) -> bool:
-                # check if weekday is 1..5
-                if dt.isoweekday() in range(1, 6) and dt.hour in self.config_loader.getConfig().get_quiet_times():
-                    return True
-                else:
-                    return False
+        # check if weekday is 1..5
+        if (
+            dt.isoweekday() in range(1, 6)
+            and dt.hour in self.config_loader.getConfig().get_quiet_times()
+        ):
+            return True
+        else:
+            return False

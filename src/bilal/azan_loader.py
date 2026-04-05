@@ -23,15 +23,14 @@ class Azan:
     def to_dict(self) -> Dict:
         return {
             "salat": self.salat.name,  # Convert Enum to string (e.g., "FAJR")
-            "azan_time": self.azan_time.isoformat()  # Convert datetime to string
+            "azan_time": self.azan_time.isoformat(),  # Convert datetime to string
         }
 
     def __str__(self):
-        return f'{self.salat} @ {self.azan_time}'
+        return f"{self.salat} @ {self.azan_time}"
 
 
 class AzanLoader(ABC):
-
     @abstractmethod
     def get_azans_for_day(self, date: datetime = datetime.now()) -> List[Azan]:
         """Get all the azans for a day"""

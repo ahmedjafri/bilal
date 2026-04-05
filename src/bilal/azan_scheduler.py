@@ -11,8 +11,9 @@ class AzanScheduler:
     Ensures that scheduled Azan plays at the correct time and allows graceful shutdown.
     """
 
-    def __init__(self, azan_player: AzanPlayer, azan_loader: AzanLoader,
-                 logger: Logger):
+    def __init__(
+        self, azan_player: AzanPlayer, azan_loader: AzanLoader, logger: Logger
+    ):
         self.azan_player = azan_player
         self.azan_loader = azan_loader
         self.logger = logger
@@ -26,12 +27,12 @@ class AzanScheduler:
         Thread function to wait until the scheduled Azan time and then play it.
         The thread can be interrupted if a shutdown is requested.
         """
-        time_to_azan_secs = (azan.azan_time -
-                             datetime.datetime.now()).total_seconds()
+        time_to_azan_secs = (azan.azan_time - datetime.datetime.now()).total_seconds()
 
         if time_to_azan_secs > 0:
             self.logger.info(
-                f"Sleeping for {time_to_azan_secs/60:.2f} min to play Azan")
+                f"Sleeping for {time_to_azan_secs / 60:.2f} min to play Azan"
+            )
 
         # Wait for the azan time or shutdown event, whichever comes first
         self.shutdown_event.wait(timeout=time_to_azan_secs)
@@ -53,11 +54,10 @@ class AzanScheduler:
         """
         Schedules an Azan to play at the specified time.
         """
-        self.logger.info(
-            f"Scheduling Azan for {azan.salat} at {azan.azan_time}")
+        self.logger.info(f"Scheduling Azan for {azan.salat} at {azan.azan_time}")
         self._last_scheduled_azan = azan
 
-        thread = Thread(target=self._azan_thread_function, args=(azan, ))
+        thread = Thread(target=self._azan_thread_function, args=(azan,))
         thread.start()
 
         with self.lock:
@@ -67,8 +67,7 @@ class AzanScheduler:
         """
         Signals all scheduled Azan threads to stop and waits for them to finish.
         """
-        self.logger.info(
-            "Stopping AzanScheduler and waiting for threads to exit...")
+        self.logger.info("Stopping AzanScheduler and waiting for threads to exit...")
         self.shutdown_event.set()  # Wake up sleeping threads
 
         with self.lock:

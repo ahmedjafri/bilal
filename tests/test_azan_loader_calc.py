@@ -1,7 +1,7 @@
 from datetime import datetime
 from bilal.azan_loader_calc import CalcAzanLoader
 from bilal.azan_loader import Salat
-from bilal.azan_config import AzanConfig, AzanConfigLoader
+from bilal.azan_config import AzanConfig
 
 
 class FakeConfigLoader:

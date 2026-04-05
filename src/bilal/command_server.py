@@ -1,17 +1,14 @@
 from importlib import resources
 import signal
-import sys
-import threading
 from typing import List
-from bottle import route, run, template, request, static_file, timedelta
+from bottle import template, request, static_file, timedelta
 from threading import Lock, Thread
-from bilal.azan_loader_calc import CalcAzanLoader
 from bilal.praytimes import PrayTimes
 from bilal.azan_config import AzanConfigLoader
 from bilal.azan_loader import AzanLoader
 from bilal.azan_scheduler import AzanScheduler
 from bilal.azan_player import AzanPlayer
-from bilal.azan_loader import Azan, Salat
+from bilal.azan_loader import Azan
 from logging import Logger
 import os
 from bottle import response, Bottle
@@ -28,6 +25,7 @@ def kill_process():
     os.kill(pid, signal.SIGTERM)
     print("Killing process to reload fresh state")
 
+
 class CommandServer:
     logger: Logger
     azan_player: AzanPlayer
@@ -36,17 +34,22 @@ class CommandServer:
     config_loader: AzanConfigLoader
     playing_azan: Lock = Lock()
 
-    def __init__(self, logger: Logger, azan_player: AzanPlayer,
-                 azan_scheduler: AzanScheduler, azan_loader: AzanLoader,
-                 config_loader: AzanConfigLoader):
+    def __init__(
+        self,
+        logger: Logger,
+        azan_player: AzanPlayer,
+        azan_scheduler: AzanScheduler,
+        azan_loader: AzanLoader,
+        config_loader: AzanConfigLoader,
+    ):
         self.logger = logger
         self.azan_player = azan_player
         self.azan_scheduler = azan_scheduler
         self.azan_loader = azan_loader
         self.config_loader = config_loader
         self.app = Bottle()
-        self.app.get('/config')(self.get_config)
-        self.app.post('/config')(self.update_config)
+        self.app.get("/config")(self.get_config)
+        self.app.post("/config")(self.update_config)
 
         self.app.route("/command/<command>")(self.command)
         self.app.get("/metadata")(self.metadata)
@@ -68,13 +71,13 @@ class CommandServer:
         next_azan: Azan = self.azan_loader.get_next_azan()
 
         # Check if a date parameter was provided
-        date_param = request.query.get('date')
+        date_param = request.query.get("date")
         target_date = datetime.now()
 
         if date_param:
             try:
                 # Parse the date from the query parameter (format: YYYY-MM-DD)
-                target_date = datetime.strptime(date_param, '%Y-%m-%d')
+                target_date = datetime.strptime(date_param, "%Y-%m-%d")
             except ValueError:
                 # If date parsing fails, use current date
                 pass
@@ -87,22 +90,21 @@ class CommandServer:
             "upcoming_azan": next_azan.to_dict(),
             "azans_for_day": [azan.to_dict() for azan in day_azans],
             "available_azans": self.azan_player.list_azan_filenames(),
-            "quiet_hours_start":
-            self.config_loader.getConfig().quiet_times_start,
+            "quiet_hours_start": self.config_loader.getConfig().quiet_times_start,
             "quiet_hours_end": self.config_loader.getConfig().quiet_times_end,
             "azan_methods": PrayTimes().methods,
         }
 
-        if os.path.exists('azan_clock_log_file.log'):
+        if os.path.exists("azan_clock_log_file.log"):
             lines: list[str]
-            with open('azan_clock_log_file.log', 'r') as file:
+            with open("azan_clock_log_file.log", "r") as file:
                 lines = file.readlines()
 
             # Extract the last 200 lines (or less if there are fewer lines in the file)
             last_lines = lines[-100:]
 
             # Join the lines to create a single string
-            latest_log = ''.join(last_lines)
+            latest_log = "".join(last_lines)
 
             # Assign the latest log to rv["latest_log"]
             rv["latest_log"] = latest_log
@@ -112,12 +114,13 @@ class CommandServer:
 
     def command(self, command):
         self.logger.info(
-            f"Command called. cmd={command} params={request.params.__dict__}")
+            f"Command called. cmd={command} params={request.params.__dict__}"
+        )
         if command == "play_azan":
             self.logger.info("Playing azan from server")
             azan_file = request.GET.get(
-                "file",
-                self.azan_player.list_azan_filenames()[0])
+                "file", self.azan_player.list_azan_filenames()[0]
+            )
             thread = Thread(target=self.playAzanAsync, args=([azan_file]))
             thread.start()
         elif command == "stop_azan":
@@ -131,13 +134,13 @@ class CommandServer:
         return template("<b>Run {{command}}", command=command)
 
     def web(self, filename="index.html"):
-        file_path = resources.files('bilal').joinpath('www', filename)
+        file_path = resources.files("bilal").joinpath("www", filename)
         print(file_path)
         return static_file(filename, root=os.path.dirname(file_path))
 
     def get_config(self):
         """Retrieve the current configuration."""
-        response.content_type = 'application/json'
+        response.content_type = "application/json"
         config = self.config_loader.getConfig()
         return dumps(config.__dict__, indent=2)
 
