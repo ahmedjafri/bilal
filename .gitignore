@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.log
+.venv/
+venv/
+poetry.lock
+.env
+config.json
+node_modules/
+.DS_Store
+.ruff_cache/
+.pytest_cache/

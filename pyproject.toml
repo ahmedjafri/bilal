@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "bilal"
+version = "0.1.0"
+description = "A low-dependency azan clock optimized for playing the azan reliably every time"
+readme = "README.md"
+license = "MIT"
+authors = []
+packages = [{include = "bilal", from = "src"}]
+
+[tool.poetry.scripts]
+bilal = "bilal.azan_clock:main"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+bottle = ">=0.13"
+zeroconf = ">=0.38.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.0"
+ruff = ">=0.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
